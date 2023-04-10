@@ -17,7 +17,7 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,html}": "yarn formatEslint && yarn formatPrettier"
+    "*.{js,jsx,ts,tsx,html}": "yarn formatPrettier"
   },
   "keywords": [],
   "author": "",
