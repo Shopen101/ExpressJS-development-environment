@@ -1,4 +1,4 @@
-import { create } from "@modules/tst"
+import { create } from '@modules/tst'
 
 create('Vasya')
 const message = '1234'
