@@ -1,5 +1,3 @@
-import { create } from '@modules/tst'
+import { testFunc } from '@modules/tst'
 
-create('Vasya')
-const message = '1234'
-console.log(message)
+testFunc('Vasya')
