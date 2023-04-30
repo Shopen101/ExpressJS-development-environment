@@ -28,4 +28,4 @@ const UserSchema = new Schema<UserModelInterface>({
   },
 })
 
-export const UserModel = model<UserModelDocumentInterface>('User', UserSchema)
+export const UserModel = model<UserModelDocumentInterface>('user', UserSchema)

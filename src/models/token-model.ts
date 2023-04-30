@@ -6,7 +6,7 @@ export interface TokenModelInterface {
   refreshToken: string
 }
 
-export type UserModelDocumentInterface = TokenModelInterface & Document
+export type TokenModelDocumentInterface = TokenModelInterface & Document
 
 const TokenSchema = new Schema<TokenModelInterface>({
   user: {
@@ -19,4 +19,4 @@ const TokenSchema = new Schema<TokenModelInterface>({
   },
 })
 
-export const UserModel = model<UserModelDocumentInterface>('User', TokenSchema)
+export const tokenModel = model<TokenModelDocumentInterface>('Token', TokenSchema)
