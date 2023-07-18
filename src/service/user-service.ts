@@ -45,6 +45,59 @@ class UserService {
     user.isActivated = true
     await user.save()
   }
+
+  async login(email: string, password: string) {
+    const user = await UserModel.findOne({ email })
+    if (!user) {
+      throw ApiError.BadRequest('Пользователь с таким Email не найден')
+    }
+
+    const isPassEquals = await bcrypt.compare(password, user.password)
+
+    if (!isPassEquals) {
+      throw ApiError.BadRequest('Неверный пароль')
+    }
+
+    const userDto = new UserDto(user)
+    const tokens = tokenService.generateTokens({ ...userDto })
+
+    await tokenService.saveToken(userDto.id, tokens.refreshToken)
+    return { ...tokens, user: userDto }
+  }
+
+  async logout(refreshToken: string) {
+    const token = await tokenService.removeToken(refreshToken)
+    return token
+  }
+
+  async refresh(refreshToken: string | null | undefined) {
+    if (!refreshToken) {
+      throw ApiError.UnauthorizeError()
+    }
+
+    const userData = tokenService.validateRefreshToken(refreshToken)
+    const tokenFromDb = await tokenService.findToken(refreshToken)
+
+    if (!userData || !tokenFromDb) {
+      throw ApiError.UnauthorizeError()
+    }
+
+    const user = await UserModel.findById(userData.id)
+    if (!user) {
+      throw ApiError.BadRequest('Ошибка, не определены данные юзера по токену')
+    }
+
+    const userDto = new UserDto(user)
+    const tokens = tokenService.generateTokens({ ...userDto })
+
+    await tokenService.saveToken(userDto.id, tokens.refreshToken)
+    return { ...tokens, user: userDto }
+  }
+
+  async getAllUsers() {
+    const users = await UserModel.find()
+    return users
+  }
 }
 
 export const userService = new UserService()

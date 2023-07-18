@@ -11,6 +11,7 @@ class UserController {
       if (!errors.isEmpty()) {
         return next(ApiError.BadRequest('Ошибки при валидации', errors.array()))
       }
+
       const { email, password } = req.body
       const userData = await userService.registration(email, password)
       res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
@@ -23,6 +24,10 @@ class UserController {
 
   async login(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
+      const { email, password } = req.body
+      const userData = await userService.login(email, password)
+      res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
+      return res.json(userData)
     } catch (error) {
       next(error)
     }
@@ -30,6 +35,9 @@ class UserController {
 
   async logout(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
+      await userService.logout(req.cookies.refreshToken)
+      res.clearCookie('refreshToken')
+      return res.sendStatus(200)
     } catch (error) {
       next(error)
     }
@@ -48,6 +56,10 @@ class UserController {
 
   async refresh(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
+      const { refreshToken } = req.cookies
+      const userData = await userService.refresh(refreshToken)
+      res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
+      return res.json(userData)
     } catch (error) {
       next(error)
     }
@@ -55,7 +67,8 @@ class UserController {
 
   async getUser(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-      res.json(['test', 123])
+      const users = await userService.getAllUsers()
+      return res.json(users)
     } catch (error) {
       next(error)
     }
