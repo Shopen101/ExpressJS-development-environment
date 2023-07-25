@@ -2,7 +2,6 @@ import bcrypt from 'bcrypt'
 import { v4 as uuidv4 } from 'uuid'
 
 import { UserModel } from '@models/user-model'
-import { mailService } from '@service/mail-service'
 import { tokenService } from '@service/token-service'
 import { UserDto } from '@dtos/user-dto'
 import { ApiError } from '@exception/api-error'
@@ -19,9 +18,8 @@ class UserService {
     const activationLink = uuidv4() // v34fa-4gg45-44frfrf-34r
 
     const user = await UserModel.create({ email, password: hashedPassword })
-    await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}`)
 
-    const userDto = new UserDto(user) // id, email, isActivated
+    const userDto = new UserDto(user) // id, email
     const tokens = tokenService.generateTokens({ ...userDto })
 
     await tokenService.saveToken(userDto.id, tokens.refreshToken)
@@ -33,17 +31,6 @@ class UserService {
       ...tokens,
       user: userDto,
     }
-  }
-
-  async activate(activationLink: string) {
-    const user = await UserModel.findOne({ activationLink })
-
-    if (!user) {
-      throw ApiError.BadRequest('Некоректная ссылка активации')
-    }
-
-    user.isActivated = true
-    await user.save()
   }
 
   async login(email: string, password: string) {

@@ -4,7 +4,6 @@ export interface UserModelInterface {
   _id?: string
   email: string
   password: string
-  isActivated: boolean
   activationLink: string
 }
 
@@ -18,13 +17,6 @@ const UserSchema = new Schema<UserModelInterface>({
   password: {
     type: String,
     unique: true,
-  },
-  isActivated: {
-    type: Boolean,
-    default: false,
-  },
-  activationLink: {
-    type: String,
   },
 })
 
